@@ -61,29 +61,29 @@ data Packet = Packet {
 } deriving (Show, Eq)
 
 instance Binary Packet where
-         get = Packet <$> 
-             get <*>
-             get <*>
-             get <*>
-             get <*>
-             get <*>
-             get <*>
-             get <*>
-             get <*>
-             get
---         get = do
---              idstr <- getWord16le
---              typ <- get :: Get Word8
---              count <- get :: Get Word8
---              seqno <- getWord32le
---              md5h <- getWord64le
---              md5l <- getWord64le
---              encoding <- get :: Get Word8
---              flags <- get :: Get Word8
---              version <- getWord16le
---              return (Packet idstr typ count seqno md5h md5l encoding flags 
-         
-         put (Packet idstr _ _ s _ _ _ _ _) = 
+--          get = Packet <$> 
+--              get <*>
+--              get <*>
+--              get <*>
+--              get <*>
+--              get <*>
+--              get <*>
+--              get <*>
+--              get <*>
+--              get
+    get = do
+             idstr <- getWord16le
+             typ <- get :: Get Word8
+             count <- get :: Get Word8
+             seqno <- getWord32le
+             md5h <- getWord64le
+             md5l <- getWord64le
+             encoding <- get :: Get Word8
+             flags <- get :: Get Word8
+             version <- getWord16le
+             return (Packet idstr typ count seqno md5h md5l encoding flags 
+                    version)         
+    put (Packet idstr _ _ s _ _ _ _ _) = 
              putWord16le idstr >> 
              put (1 :: Word8) >>
              put (0 :: Word8) >>
