@@ -1,5 +1,7 @@
+{-
 import Data.List
 import Control.Applicative
+import Data.Array
 
 dblLinear :: Int -> Integer
 dblLinear n = (twiceLinearList !! n)
@@ -35,3 +37,35 @@ diagonal num row = sum . take (fromInteger (num - row + 1)) . f $ row
 d :: Integer -> Integer -> Integer
 d num row = sum [ x * (n - x + 1) | x <- [1..n] ]
   where n = num - row + 1
+
+
+go :: [Int] -> [Int]
+go = elems . foldl' update (array (0,99) [(i,0) | i <- [0..99]])
+  where update acc x = acc `seq` (acc // [(x,(acc ! x) + 1)])
+        
+main = do
+  getLine
+  x <- getContents
+  let a = go . map read . words $ x
+  putStrLn . unwords . map show $ a
+-}
+
+import Data.List
+import Data.Maybe
+import qualified Data.ByteString.Char8 as B
+
+{-
+go :: B.ByteString -> Int
+go l = let res = findIndex id $ map (isPalindrome . (remove l))  [0..B.length l-1]
+       in case res of
+              Nothing -> -1
+              Just x  -> x
+  where isPalindrome s = s == B.reverse s
+        remove l idx = B.append (B.take idx l) (B.drop (idx+1) l)
+main = B.getLine >> (mapM_ (putStrLn . show . go) . B.lines =<< B.getContents)
+-}
+climb :: Int -> [Int]
+climb x = reverse $ takeWhile (>= 1) $ iterate (`div` 2) x
+                 
+                                                
+                                                 
