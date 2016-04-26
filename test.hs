@@ -69,3 +69,10 @@ climb x = reverse $ takeWhile (>= 1) $ iterate (`div` 2) x
                  
                                                 
                                                  
+fact :: Integer -> Integer
+fact 0 = 1
+fact n = n * fact (n-1)
+check :: Integer -> Bool
+check n = let v = sum . map (fact . read . return) . show $ n
+          in v `rem` n == 0
+foo = putStrLn . unwords . map show . filter check . enumFromTo 10 . pred
