@@ -64,6 +64,7 @@ go l = let res = findIndex id $ map (isPalindrome . (remove l))  [0..B.length l-
         remove l idx = B.append (B.take idx l) (B.drop (idx+1) l)
 main = B.getLine >> (mapM_ (putStrLn . show . go) . B.lines =<< B.getContents)
 -}
+import Data.Word
 climb :: Int -> [Int]
 climb x = reverse $ takeWhile (>= 1) $ iterate (`div` 2) x
                  
@@ -76,3 +77,17 @@ check :: Integer -> Bool
 check n = let v = sum . map (fact . read . return) . show $ n
           in v `rem` n == 0
 foo = putStrLn . unwords . map show . filter check . enumFromTo 10 . pred
+
+
+msb :: Word64 -> Word64
+msb 0 = undefined
+msb n = if n `div` 2 == 0 then 0
+        else 1 + msb (n `div` 2)
+unfold :: Word64 -> [Word64]
+unfold n
+  | n == 1        = []
+  | n == power2 n = let v = n `div` 2 in v : unfold v
+  | otherwise     = let v = n - power2 n in v : unfold v
+  where power2 k = 2 ^ msb k
+sample :: Word64
+sample = 11495204200322075427

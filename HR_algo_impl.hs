@@ -131,7 +131,6 @@ test2 = go. f $ "17 21 2 1 16 9 12 11 6 18 20 7 14 8 19 10 3 4 13 5 15"
 test3 = go . f $ "5 8 13 3 10 4 12 1 2 7 14 6 15 11 9" -- this should return False
 test4 = go . f $ "8 10 6 11 7 1 9 12 3 5 13 4 2"
 test5 = go . f $ "7 9 15 8 10 16 6 14 5 13 17 12 3 11 4 1 18 2"
--}
 -- Matrix Rotation
 type Matrix = [[Int]]
 foo,bar,baz :: Matrix
@@ -176,3 +175,32 @@ main = do
       m = map (map read . words) . lines $ content
       m' = matRotate n m
   putStrLn . unlines . map (unwords . map show) $ m'
+-}
+-- New Year Chaos
+import Data.List
+
+step :: Ord a => Int -> [a] -> [a] -> (Int,[a])
+step n rs [] = (n, reverse (rs))
+step n rs [x] = (n, reverse (x:rs))
+step n rs (x:y:xs)
+  | x > y = step (n+1) (x:y:rs) (xs)
+  | otherwise = step n (x:rs) (y:xs)
+
+solve :: Ord a => [a] -> (Int, [a])
+solve xs = let (n, xs') = step 0 [] xs
+               (n',xs'') = step n [] xs' in
+           (n', xs'')
+
+go :: [Int] -> String
+go x = let (n, xs) = solve x
+       in if xs == sort xs then show n
+          else "Too chaotic"
+               
+main = getLine >> getContents >>=
+  mapM_ (putStrLn . go ). chunk . lines
+  where chunk [] = []
+        chunk (x:y:xs) = map read  (words y) : chunk xs
+{-
+5 1 2 3 7 8 6 4 => Too
+1 2 5 3 7 8 6 4 => 7
+-}

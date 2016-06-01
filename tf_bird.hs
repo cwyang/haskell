@@ -1,7 +1,8 @@
 -- Thinking Functionally With Haskell by R.Bird, excercies
 module Main where
 import Data.List
-
+import Control.Monad.ST
+import Data.Array.ST
 
 -- $setup
 -- >>> import Test.QuickCheck
@@ -129,6 +130,7 @@ mean2 xs = s / fromIntegral n
 
 main = print $ mean1 [1..1000000]
 
+{-
 -- chapter 8 pretty printting
 
 type Layout = String
@@ -141,3 +143,70 @@ text :: String -> Doc
 line :: Doc
 nest :: Int -> Doc -> Doc
 group :: Doc -> Doc
+-}
+
+-- chapter 10 bfs
+type Path = ([Move], Position)
+type Frontier = [Path]
+
+moves :: Position -> [Move]
+move  :: Position -> Move -> Position
+solved :: Position -> Bool
+
+{-
+solve :: Position -> Maybe [Move]
+solve p = bfs [] [([],p)]
+-- dummy bfs
+bfs :: [Position] -> Frontier -> Maybe [Move]
+bfs ps [] = Nothing
+bfs ps ((ms,p):mps)
+  | solved p = Just (reverse ms)
+  | p `elem` ps = bfs ps mps
+  | otherwise = bfs (p:ps) (mps ++ succs (ms,p))
+-}
+
+{-
+-- enhancement 1
+solve :: Position -> Maybe [Move]
+solve p = bfs [] [([],p)] []
+bfs :: [Position] -> Frontier -> Frontier -> Maybe [Move]
+bfs ps [] [] = Nothing
+bfs ps [] mqs = bfs ps mqs []   -- last arg is temp frontier to store successors
+bfs ps ((ms,p): mps) mqs
+  | solved p = Just (reverse ms)
+  | p `elem` ps = bfs ps mps mqs
+  | otherwise  = bfs (p:ps) mps (succs (ms,p) ++ mqs)
+-}
+
+-- enhanvement 2
+encode :: Position -> Integer
+encode = fromIntegral . sum
+start :: Position
+start = [1]
+hash :: Position -> Int
+hash p = fromInteger (encode p) `mod` 1000
+solve :: Maybe [Move]
+solve = runST $
+  do pa <- newArray (0,000) []
+     bfs pa [([],start)] []
+bfs :: STArray s Int [Position] -> Frontier -> Frontier -> ST s (Maybe [Move])
+bfs pa [] [] = return Nothing
+bfs pa [] mqs = bfs pa mqs []
+bfs pa ((ms,p):mps) mqs
+  | solved p  = return (Just (reverse ms))
+  | otherwise = do ps <- readArray pa k
+                   if p `elem` ps
+                     then bfs pa mps mqs
+                     else do writeArray pa k (p:ps)
+                             bfs pa mps (succs (ms,p) ++ mqs)
+  where k = hash p
+     
+
+succs :: Path -> [Path]
+succs (ms,p) = [(m:ms, move p m) | m <- moves p]
+
+moves p = p
+move p m = filter (/= m) p
+solved = null
+type Move = Int
+type Position = [Int]
