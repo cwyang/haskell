@@ -49,7 +49,7 @@ main = do
   let a = go . map read . words $ x
   putStrLn . unwords . map show $ a
 -}
-
+import Data.Char
 import Data.List
 import Data.Maybe
 import qualified Data.ByteString.Char8 as B
@@ -91,3 +91,18 @@ unfold n
   where power2 k = 2 ^ msb k
 sample :: Word64
 sample = 11495204200322075427
+
+
+-- just excercises
+
+tupled :: [Char] -> ([Char], [Char])
+tupled = reverse >>= \a ->
+  map toUpper >>= \b ->
+  return (a,b)
+
+newtype Reader' r a = Reader' { runReader' :: r -> a}
+instance Functor (Reader' r) where
+  fmap f (Reader' ra) = Reader' $ (f . ra)
+
+ask' :: Reader' a a
+ask' = Reader' id

@@ -1,3 +1,4 @@
+{-# LANGUAGE InstanceSigs #-}
 import Data.Monoid
 import Test.QuickCheck
 import Test.QuickCheck.Checkers
@@ -53,9 +54,25 @@ baaz = do
   let trigger = undefined :: TI (Int, Int, [Int])
   quickBatch (traversable trigger)
 
+-- just excercises
+
 hurr :: Num a => a->a
 hurr = (*2)
 durr :: Num a => a->a
 durr = (+10)
 m :: Num a => a->a
 m = hurr . durr
+
+myLiftA2 :: Applicative f =>
+            (a->b->c) -> f a -> f b -> f c
+myLiftA2 f a b = f <$> a <*> b
+
+newtype Reader' r a = Reader' { runReader :: r -> a }
+instance Functor (Reader' r) where
+  fmap f (Reader' ra) = Reader' $ (f . ra)
+instance Applicative (Reader' r) where
+  pure = Reader' . const
+  (<*>) :: Reader' r (a->b) -> Reader' r a -> Reader' r b
+  (Reader' rab) <*> (Reader' ra) = Reader' $ \r -> (rab r) (ra r)
+asks' :: (r -> a) -> Reader' r a
+asks' f = Reader' f
