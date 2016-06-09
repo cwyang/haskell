@@ -8,7 +8,7 @@ import Control.Applicative
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy as LB (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LBC
-import Data.Char (isAlpha)
+import Data.Char (isAlpha, ord)
 import Data.Map (Map)
 import qualified Data.Map as M
 import Data.Text (Text)
@@ -19,6 +19,7 @@ import Text.RawString.QQ
 import Text.Trifecta
 import Text.Trifecta (Result)
 import Data.Scientific (floatingOrInteger)
+import Data.Maybe (fromMaybe)
 
 headerEx :: ByteString
 headerEx = "[blah]"
@@ -224,7 +225,8 @@ numOrStr = NOSI <$> integer <|> NOSS <$> identifier
 rel, meta :: Parser [NumberOrString]
 parseEtc :: Char -> Parser [NumberOrString]
 --parseEtc c = many ((dott <|> char c) >> numOrStr)
-parseEtc c = optional (char c >> numOrStr) >>= \x -> case x of
+parseEtc c = (fromMaybe []) <$> optional (char c >> sepBy numOrStr dott)
+parseEtc' c = optional (char c >> numOrStr) >>= \x -> case x of
   Nothing -> return []
   Just x  -> (x:) <$> many (dott >> numOrStr)
 --((dott <|> char c) >> numOrStr)
@@ -253,3 +255,43 @@ semverTest = hspec $ do
     (f [NOSS "alpha", NOSS "beta", NOSI 11] < f [NOSS "alpha", NOSS "rc", NOSI 1]) `shouldBe` True
     (f [NOSS "alpha", NOSS "rc", NOSI 1] < f []) `shouldBe` True
 -- 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-alpha.beta < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0
+
+g :: Parser a -> String -> Result a
+g x = parseString x mempty
+
+parseDigit :: Parser Char
+parseDigit = oneOf ['0'..'9'] <?> "parseDigit"
+base10Integer, base10Integer' :: Parser Integer
+base10Integer = do
+  l <- some $ (\x -> ord x - ord '0') <$> parseDigit <?> "integer"
+  return $ foldl (\acc x -> acc * 10 + fromIntegral x) 0 l
+base10Integer' = do
+  sign <- optional (char '-')
+  case sign of
+    Just _ ->  negate <$> base10Integer
+    _      ->  optional (char '+') >> base10Integer
+
+type NumberingPlanArea = Int
+type Exchange = Int
+type LineNumber = Int
+data PhoneNumber = PhoneNumber NumberingPlanArea Exchange LineNumber
+                   deriving (Eq, Show)
+
+threeDigit, fourDigit :: Parser Int
+threeDigit = read <$> count 3 digit
+fourDigit = read <$> count 4 digit
+d :: Parser Char
+d = char '-'
+form1, form2, form3, form4, parsePhone :: Parser PhoneNumber
+form1 = PhoneNumber
+  <$> threeDigit <* d
+  <*> (try fourDigit <|> threeDigit) <* d
+  <*> fourDigit
+form2 = PhoneNumber <$> threeDigit <*> fourDigit <*> fourDigit
+form2' = PhoneNumber <$> threeDigit <*> threeDigit <*> fourDigit
+form3 = PhoneNumber
+  <$> between (char '(') (char ')') threeDigit <* char ' '
+  <*> (try fourDigit <|> threeDigit) <* d
+  <*> fourDigit
+form4 = some digit >> d >> form1
+parsePhone = (form3 <|> try form1 <|> try form2 <|> try form2' <|> form4) <* eof
