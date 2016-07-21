@@ -218,8 +218,12 @@ main = do
 
 -- 6. Heap
 -}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
+
 import qualified Data.ByteString.Char8 as B
 import qualified Data.IntMap.Strict as M
+import Text.RawString.QQ
 
 import Data.Maybe
 import Data.List
@@ -248,7 +252,7 @@ deleteMaxMS ms@(MultiSet m) =
 
 combineMS :: MultiSet -> MultiSet -> MultiSet
 combineMS (MultiSet a) (MultiSet b) =
-  MultiSet $ M.union a b
+  MultiSet $ M.unionWith (+) a b
 
 process :: [B.ByteString] -> [B.ByteString]
 process = map (B.pack . show) . reverse . snd . foldl' go (M.empty,[])
@@ -276,3 +280,25 @@ main = do
   input <- B.getContents
   B.putStrLn . B.unlines . process . B.lines $ input
 
+foo,bar::[B.ByteString]
+foo= B.lines [r|3 1 10
+3 2 10
+4 1 2
+1 1
+2 1
+1 1
+|]
+
+bar= B.lines [r|3 1 10
+3 2 20
+4 1 2
+1 1
+2 1
+1 1
+|]
+
+baz= B.lines [r|3 1 10
+3 1 10
+2 1
+1 1
+|]

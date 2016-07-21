@@ -176,31 +176,42 @@ main = do
       m' = matRotate n m
   putStrLn . unlines . map (unwords . map show) $ m'
 -}
--- New Year Chaos
-import Data.List
-
-step :: Ord a => Int -> [a] -> [a] -> (Int,[a])
-step n rs [] = (n, reverse (rs))
-step n rs [x] = (n, reverse (x:rs))
-step n rs (x:y:xs)
-  | x > y = step (n+1) (x:y:rs) (xs)
-  | otherwise = step n (x:rs) (y:xs)
-
-solve :: Ord a => [a] -> (Int, [a])
-solve xs = let (n, xs') = step 0 [] xs
-               (n',xs'') = step n [] xs' in
-           (n', xs'')
-
-go :: [Int] -> String
-go x = let (n, xs) = solve x
-       in if xs == sort xs then show n
-          else "Too chaotic"
-               
-main = getLine >> getContents >>=
-  mapM_ (putStrLn . go ). chunk . lines
-  where chunk [] = []
-        chunk (x:y:xs) = map read  (words y) : chunk xs
+-- New Year Chaos 2nd attempt
 {-
-5 1 2 3 7 8 6 4 => Too
-1 2 5 3 7 8 6 4 => 7
+import Data.List
+import Data.Maybe
+import qualified Data.IntMap.Strict as M
+import qualified Data.ByteString.Char8 as B
+
+bubbleSort :: [Int] -> (Maybe [Int], M.IntMap Int, Int)
+bubbleSort x = foldl' bubbleSortIter (Just x, M.empty, 0) [l,l-1..1]
+  where l = length x
+
+bubbleSortIter :: (Maybe [Int], M.IntMap Int, Int) -> Int -> (Maybe [Int], M.IntMap Int, Int)
+bubbleSortIter nothing@(Nothing, _, _) _ = nothing
+bubbleSortIter (Just l, m, cnt) _        =  (reverse <$>l',m',cnt+cnt')
+  where go (Nothing,m,c) el = (Nothing,m,c)
+        go (Just [],m,c) el = (Just [el],m,c)
+        go (Just f@(x:xs),m,c) el
+          | el >= x                = (Just (el:x:xs), m,c)
+          | M.lookup x m == Just 2 = (Nothing, m,0)
+          | el <= x                 = (Just (x:el:xs),M.insertWith (+) x 1 m,c+1)
+        (l',m',cnt') = foldl' go (Just [],m,0) l
+
+check :: (Maybe [Int], M.IntMap Int,Int) -> String
+check (Nothing,_,_) = "Too chaotic"
+check (Just _,_,cnt) = show cnt
+main = B.getLine >> B.getContents >>=
+  mapM_ (putStrLn . check . bubbleSort). chunk . B.lines
+  where chunk [] = []
+        chunk (x:y:xs) = map (fst.fromJust.B.readInt)  (B.words y) : chunk xs
 -}
+-- Absolute Permutation
+absPerm :: [Int] -> [Int]
+absPerm [n,k]
+  | k == 0 = [1..n]
+  | odd n  = [-1]
+  | k == 1 && n == 2 = [2,1]
+  | otherwise = [-1]
+main = getLine >> getContents >>=
+  mapM_ (putStrLn . unwords . map show. absPerm) . map (map (read :: String->Int).words) . lines

@@ -31,33 +31,98 @@ scanList k l = let (ini, rst) = splitAt k l
                in qVal $ fst $ foldl' go (initQ, initQ) rst
 -}      
 {-
+-- Cutting Boards
+import Data.List
+
+calc :: Integer -> Integer -> Integer -> ([Integer],[Integer]) -> [Integer]
+calc acc nx ny ([],[]) = [acc]
+calc acc nx ny (cx:cxs,[]) = calc (acc+cx*ny) (nx+1) ny (cxs,[])
+calc acc nx ny ([],cy:cys) = calc (acc+cy*nx) nx (ny+1) ([],cys)
+calc acc nx ny (cx:cxs,cy:cys)
+  | cx > cy = xcut -- very surprising greedy rules!
+  | cx < cy = ycut
+  | otherwise = xcut
+  where xcut = calc (acc+cx*ny) (nx+1) ny (cxs, cy:cys)
+        ycut = calc (acc+cy*nx) nx (ny+1) (cx:cxs, cys)
+
+readArgs :: [String] -> [([Integer],[Integer])]
+readArgs [] = []
+readArgs (x:y:z:xs) =
+  let mr = map read . words
+      [m,n] = mr x
+      y' = reverse $ sort $ mr y
+      x' = reverse $ sort $ mr z
+  in (y',x'):readArgs xs
+
+main = getLine >> getContents >>=
+  mapM_ (putStrLn . show . (flip rem $ 10^9+7) . head . sort . calc 0 1 1) . readArgs . lines
+-- Chief Hopper
+calc :: Int -> [Int] -> Int
+calc energy [] = energy
+calc energy (x:xs)
+  | energy < x = calc (energy + ((x-energy+1)`div`2)) xs
+  | energy > x = calc (x + ((energy-x+1) `div` 2)) xs
+  | otherwise = calc energy xs
+  
+main = getLine >> getContents >>=
+  print . calc 0 . reverse . map (read :: String ->Int). words
+-}
 -- Largest Permutation
+{-
 go :: Int -> [Int] -> [Int]
 go 0 x = x
 go _ [] = []
 go k l@(x:xs) = let m = maximum l
                     (a,b) = break (== m) xs in
                 if m == x then x : go k xs
-                else m : go (k-1) (a++(x:(tail b)))
+                else m : go (k-1) (a++ (x: (tail b)))
 main = do
     l1 <- getLine
     l2 <- getLine
     let [_,k] = map read . words $ l1
         l = map read . words $ l2
     putStrLn . unwords . map show . go k $ l
+--
+go :: Int -> Int -> [Int] -> [Int] -> [Int]
+go _ _ _ [] = []
+go 0 idx replaced l = go' idx (reverse replaced) l
+  where go' idx replaced l@(x:xs) = 
+    
+go k idx replaced l@(x:xs)
+  | x == idx  = idx : go k (idx-1) replaced xs
+  | otherwise = idx : go (k-1) (idx-1) (x:replaced) xs
+  
+goRef k l@(x:xs) = let m = maximum l
+                       (a,b) = break (== m) xs in
+                   if m == x then x : go k xs
+                   else m : go (k-1) (a++(x:(tail b)))
 -}
+-- Largest Permutation 2nd
+import qualified Data.ByteString.Char8 as B
+import qualified Data.Vector as V
+import Data.Vector ((!), (//), Vector) -- Note that V.cons is O(n)
+import Data.List
+import Data.Maybe
+import Debug.Trace
+import Text.Printf
 
--- Cutting Boards
+calc :: Vector Int -> Vector Int -> Int -> Int -> Int -> Vector Int
+calc ntop pton n k idx
+  | trace (printf ">> %s %s %d %d %d" (show ntop) (show pton) n k idx) False = undefined
+  | n == 0    = pton
+  | k == 0    = pton
+  | v == n    = calc ntop pton (n-1) k (idx+1)
+  | otherwise = let p     = ntop ! (n-1)       -- find n's pos
+                    ntop' = ntop // [(v-1,p)] -- put vh to that pos
+                    pton' = pton // [(p,v), (idx,n)]
+                in calc ntop' pton' (n-1) (k-1) (idx+1)
+  where v = pton ! idx
+        
+main = do
+  [n,k] <- rl
+  l <- rl
+  putStrLn . unwords . map show . V.toList $ calc (ntop l) (pton l) n k 0
+  where rl = fmap (map (fst . fromJust . B.readInt) . B.words) B.getLine
+        ntop l = V.fromList . map snd . sort $ zip l [0..]
+        pton l = V.fromList l
 
- go :: ((Int,Int),([Int],[Int])) -> Int
- go _ = 1
- readArgs :: [String] -> [((Int,Int),([Int],[Int]))]
- readArgs [] = []
- readArgs (x:y:z:xs) =
-   let mr = map read . words
-       [m,n] = mr x
-       y' = mr y
-       z' = mr z
-   in ((m,n),(y',z')):readArgs xs
- main = getLine >> getContents >>=
-   mapM_ (putStrLn . show . go) . readArgs . lines 

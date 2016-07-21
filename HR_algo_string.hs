@@ -41,45 +41,6 @@ main = getLine >> getContents >>=
   mapM_ (putStrLn . show . length . filter (uncurry isAnagram) . getPairs) .lines
 -}
 {-
--- Bear gene
-import Data.List
-
-inc, del :: Eq a => a -> [(a,Int)] -> [(a,Int)]
-inc x xs = case lookup x xs of
-  Just v  -> (x,v+1):(delete (x,v) xs)
-del x xs = case lookup x xs of
-  Just v  -> (x,v-1):(delete (x,v) xs)
-  
-scan :: Eq a => [(a,Int)] -> Int -> [a] -> [(a,Int)]
-scan res _ [] = res
-scan res threshold (x:xs) = case lookup x res of
-  Nothing -> scan ((x,1):res) threshold xs
-  Just v  -> if v >= threshold then res
-             else (inc x res) threshold xs
-
-scan2 :: Eq a => Int -> [(a,Int)] -> Int -> [a] -> [a] -> Int
-scan2 maxLength _ _ _ [] = maxLength
-scan2 maxLength res threshold [] (x:xs) =
-  let xv = lookup x res in
-  case xv of
-    Nothing -> scan2 (maxLength+1), ((x,1):res) threshold [] xs
-    Just v  -> if v >= threshold then maxLength
-               else (maxLength+1) (inc x res) threshold [] xs
-scan2 maxLength res threshold (y:ys) (x:xs) =
-  let xv = lookup x res
-      yv = lookup y res in
-  case xv of
-    Nothing -> scan2 (maxLength+1), ((x,1):res) threshold (y:ys) xs
-    Just v  -> if v >= threshold then scan2 maxLength res 
-               else (maxLength+1) (inc x res) threshold y:ys xs
-
-
-geneScan :: Eq a => [a] -> Int
-geneScan xs = let len = length xs `div` 4
-                  r = scan [] len xs
-                  lr = reverse $ take (sum (map snd r)) xs
-              in length xs - scan2 (length res) res len lr (reverse xs)
--}
 -- String Transmission
 foldK :: [Char] -> Int -> [[Char]]
 foldK [] _ = [[]]
@@ -133,3 +94,45 @@ chunk (x:y:xs) = let [n,k] = map read . words $ x
                  in (n,k,y) : chunk xs
 main = getLine >> getContents >>=
   mapM_ (putStrLn . show . go) . chunk . lines
+-}
+{-
+-- Bear gene
+import Data.List
+
+inc, del :: Eq a => a -> [(a,Int)] -> [(a,Int)]
+inc x xs = case lookup x xs of
+  Just v  -> (x,v+1):(delete (x,v) xs)
+del x xs = case lookup x xs of
+  Just v  -> (x,v-1):(delete (x,v) xs)
+  
+scan :: Eq a => [(a,Int)] -> Int -> [a] -> [(a,Int)]
+scan res _ [] = res
+scan res threshold (x:xs) = case lookup x res of
+  Nothing -> scan ((x,1):res) threshold xs
+  Just v  -> if v >= threshold then res
+             else (inc x res) threshold xs
+
+scan2 :: Eq a => Int -> [(a,Int)] -> Int -> [a] -> [a] -> Int
+scan2 maxLength _ _ _ [] = maxLength
+scan2 maxLength res threshold [] (x:xs) =
+  let xv = lookup x res in
+  case xv of
+    Nothing -> scan2 (maxLength+1), ((x,1):res) threshold [] xs
+    Just v  -> if v >= threshold then maxLength
+               else (maxLength+1) (inc x res) threshold [] xs
+scan2 maxLength res threshold (y:ys) (x:xs) =
+  let xv = lookup x res
+      yv = lookup y res in
+  case xv of
+    Nothing -> scan2 (maxLength+1), ((x,1):res) threshold (y:ys) xs
+    Just v  -> if v >= threshold then scan2 maxLength res 
+               else (maxLength+1) (inc x res) threshold y:ys xs
+
+
+geneScan :: Eq a => [a] -> Int
+geneScan xs = let len = length xs `div` 4
+                  r = scan [] len xs
+                  lr = reverse $ take (sum (map snd r)) xs
+              in length xs - scan2 (length res) res len lr (reverse xs)
+-}
+-- Bear Gene 2nd try

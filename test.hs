@@ -106,3 +106,8 @@ instance Functor (Reader' r) where
 
 ask' :: Reader' a a
 ask' = Reader' id
+
+foo' = let x = 1;
+       y=1
+
+       [1,2]
