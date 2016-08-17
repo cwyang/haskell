@@ -135,4 +135,33 @@ geneScan xs = let len = length xs `div` 4
                   lr = reverse $ take (sum (map snd r)) xs
               in length xs - scan2 (length res) res len lr (reverse xs)
 -}
--- Bear Gene 2nd try
+
+-- Richie Rich
+import Data.Char
+genPal :: Int -> [(Int,Int)] -> ([Int],Int)
+genPal k [] = ([],k)
+genPal k ((x,y):xs)
+  | m == 9           = let (res, k') = genPal k xs in (m:res,k')
+  | x /= y && k >= 1 = let (res, k') = genPal (k-1) xs in (9:res,k')
+  | x == y && k >= 2  = let (res, k') = genPal (k-2) xs in (9:res,k')
+  | otherwise        = let (res, k') = genPal k xs in (m:res, k')
+  where m = max x y
+calc :: Int -> Int -> [Int] -> [Int]
+calc n k l 
+  | d > k    = []
+  | even len = leftPal ++ reverse leftPal
+  | k' == 0 = leftPal ++ [fst center] ++ reverse leftPal
+  | otherwise = leftPal ++ [9] ++ reverse leftPal
+  where l' = zip l (reverse l)
+        d = (sum $ map (\(x,y) -> if x == y then 0 else 1) l') `div` 2 -- number of different pairs
+        len = length l
+        (left,center:_) = splitAt (len `div` 2) l'
+        (leftPal, k') = genPal (k-d) left
+foo = calc 6 2 [9,3,2,2,3,9]
+main = do
+  [n,k] <- rl
+  l <- fmap (map digitToInt) getLine
+  let r = calc n k l
+  if null r then putStrLn "-1"
+            else putStrLn $ map intToDigit r
+  where rl = fmap (map read . words) getLine

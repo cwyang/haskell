@@ -32,7 +32,6 @@ it's possible to N < K
    12
 12012
 -
--}
 import Data.Bits
 xorSum :: [Int] -> Int
 xorSum [] = 0
@@ -46,3 +45,6 @@ decode n k l = prefix n k l ++ take (n-k) (zipWith3 xor3 l' (tail l') (decode n 
 prefix n k l = take n $ take k $ prefix' n k 0 l
   where prefix' _ _ _ [] = []
         prefix' n k prev (x:xs) = prev `xor` x : prefix' n k x xs
+-}
+
+-- What's next

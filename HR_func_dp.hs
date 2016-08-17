@@ -32,7 +32,6 @@ main = do
 -- HMM..
 foo = "a aa aaa aaaa aaaaa aaaaaa aaaaaaa aaaaaaaa aaaaaaaaa aaaaaaaaaa"
 foo' = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaab"
--}
 -- Solution from HR
 
 {-# LANGUAGE OverloadedStrings #-}
@@ -92,3 +91,18 @@ foo :: [BS.ByteString]
 foo' :: BS.ByteString
 foo = BS.words "a aa aaa aaaa aaaaa aaaaaa aaaaaaa aaaaaaaa aaaaaaaaa aaaaaaaaaa"
 foo' = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab"
+-}
+-- Different Ways
+choose :: Int -> Int -> Integer
+choose n 0 = 1
+choose 0 k = 0
+choose n k = choose (n-1) (k-1) * fromIntegral n `div` fromIntegral k
+calc :: [Int] -> Integer
+calc [n,k] = choose n k `rem` (10^8+7)
+main = do
+  [n] <- rl
+  mapM_ (\_ -> do
+            l <- rl
+            putStrLn . show . calc $ l)
+    [1..n]
+  where rl = fmap (map (read :: String->Int) . words) getLine

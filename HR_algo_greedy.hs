@@ -99,6 +99,7 @@ goRef k l@(x:xs) = let m = maximum l
 -}
 -- Largest Permutation 2nd
 import qualified Data.ByteString.Char8 as B
+import qualified Data.IntMap.Strict as M
 import qualified Data.Vector as V
 import Data.Vector ((!), (//), Vector) -- Note that V.cons is O(n)
 import Data.List
@@ -106,23 +107,23 @@ import Data.Maybe
 import Debug.Trace
 import Text.Printf
 
-calc :: Vector Int -> Vector Int -> Int -> Int -> Int -> Vector Int
+calc :: M.IntMap Int -> M.IntMap Int -> Int -> Int -> Int -> M.IntMap Int
 calc ntop pton n k idx
-  | trace (printf ">> %s %s %d %d %d" (show ntop) (show pton) n k idx) False = undefined
+--  | trace (printf ">> %s %s %d %d %d" (show ntop) (show pton) n k idx) False = undefined
   | n == 0    = pton
   | k == 0    = pton
   | v == n    = calc ntop pton (n-1) k (idx+1)
-  | otherwise = let p     = ntop ! (n-1)       -- find n's pos
-                    ntop' = ntop // [(v-1,p)] -- put vh to that pos
-                    pton' = pton // [(p,v), (idx,n)]
+  | otherwise = let p     = fromJust $ M.lookup (n-1) ntop       -- find n's pos
+                    ntop' = M.insert (v-1) p ntop -- put vh to that pos
+                    pton' = M.insert p v $ M.insert idx n pton
                 in calc ntop' pton' (n-1) (k-1) (idx+1)
-  where v = pton ! idx
+  where v = fromJust $ M.lookup idx pton
         
 main = do
   [n,k] <- rl
   l <- rl
-  putStrLn . unwords . map show . V.toList $ calc (ntop l) (pton l) n k 0
+  putStrLn . unwords . map show . M.elems $ calc (ntop l) (pton l) n k 0
   where rl = fmap (map (fst . fromJust . B.readInt) . B.words) B.getLine
-        ntop l = V.fromList . map snd . sort $ zip l [0..]
-        pton l = V.fromList l
+        ntop l = M.fromList $ zip [0..] . map snd . sort $ zip l [0..]
+        pton l = M.fromList $ zip [0..] l
 

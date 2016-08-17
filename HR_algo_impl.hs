@@ -206,12 +206,45 @@ main = B.getLine >> B.getContents >>=
   where chunk [] = []
         chunk (x:y:xs) = map (fst.fromJust.B.readInt)  (B.words y) : chunk xs
 -}
+{-
 -- Absolute Permutation
 absPerm :: [Int] -> [Int]
 absPerm [n,k]
   | k == 0 = [1..n]
   | odd n  = [-1]
-  | k == 1 && n == 2 = [2,1]
-  | otherwise = [-1]
+  | k == 1 = concatMap (\x -> [x+1,x]) [1,3..n]
+  | not (isMultiple (2*k) n) = [-1]
+  | otherwise = concatMap (\x -> [k+x..2*k+x-1] ++ [x..k+x-1])[1,2*k+1..n]
+  where isMultiple k n = if (n `rem` k == 0) then True else False
 main = getLine >> getContents >>=
   mapM_ (putStrLn . unwords . map show. absPerm) . map (map (read :: String->Int).words) . lines
+-}
+-- New Year Chaos 3rd attempt
+-- minimum number of bribe for each node is the
+-- total count of following node smaller than it
+import qualified Data.IntMap.Strict as M
+import qualified Data.ByteString.Char8 as B
+import Data.Maybe
+
+countLT :: M.IntMap Int -> Int -> Int -> Int -> Maybe Int
+countLT m k n acc
+  | n < 0     = Nothing
+  | otherwise = case M.lookupLT k m of
+  Nothing -> Just acc
+  Just (k',_) -> countLT m k' (n-1) (acc+1)
+
+calc :: [Int] -> Maybe Int
+calc = fst . foldr go (Just 0, M.empty)
+  where go x (Nothing,_) = (Nothing, M.empty)
+        go x (Just c, m)
+          | r == Nothing = (Nothing, M.empty)
+          | Just c' <- r = (Just (c+c'), M.insert x 1 m)
+          where r = countLT m x 2 0
+  
+main = B.getLine >> B.getContents >>=
+  mapM_ (putStrLn . check . calc). chunk . B.lines
+  where chunk [] = []
+        chunk (x:y:xs) = map (fst.fromJust.B.readInt)  (B.words y) : chunk xs
+        check :: Maybe Int -> String
+        check Nothing = "Too chaotic"
+        check (Just cnt) = show cnt

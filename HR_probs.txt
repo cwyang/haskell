@@ -1,0 +1,175 @@
+637
+== Algo == 63 Moderate, 68 Difficult
+Impl
+ (M) Bomberman
+ (M) Supercomputer
+String: 6D
+ (M) Bear and 
+ (M) Yet another KMP
+Search: 4D
+ (M) Count Luck
+ (M) Cut the Tree
+ (M) Gena Hanoi
+ (M) Beautiful Quad
+Graph: 24D
+ (M) Synchronous
+ (M) BFS Shortest
+ (M) Prim's MST
+ (M) even tree
+ (M) clique
+ (M) roads in hackerland
+ (M) crab graph
+ (M) journey to the moon
+ (M) minimum penalty path
+ (M) snake and ladders
+ (M) jeanie's route
+ (M) jack goes to rapture
+Greedy: 4D
+DP: 22D
+ (M) candies
+ (M) grid walking
+ (M) hackerank city
+ (M) mr k marsh
+ (M) equal
+ (M) knapsack
+ (M) bricks game
+ (M) cut tree
+ (M) sam and sub-string
+ (M) coin on the table
+ (M) substring diff
+ (M) xor sum
+ (M) longest common subsequence
+ (M) hexagonal grid
+ (M) sherlock cost
+ (M) vertical stick
+ (M) lego block
+ (M) candles counting
+ (M) play with words
+ (M) the indian job
+ (M) interval selection
+ (M) wet shark
+ (M) extrenum permutation
+ (M) swap permutation
+ (M) travel around the world
+ (M) dortumnd dilemma
+ (M) two robots
+Bit: 4D
+ (M) what's next
+ (M) A or B
+Game Theory: 4D
+ (M) tower breaker again
+ (M) fun game
+ (M) digit square board
+ (M) chessboard again
+ (M) powers game
+ (M) deforestation
+ (M) tower breaker final
+ (M) permutation game
+ (M) move the coin
+ (M) play on benders
+ (M) kitty and katty
+ (M) vertical rooks
+ (M) A stones game
+ (M) New year game
+
+103
+== FP == 9 Moderate, 9 Difficult
+Recursion
+ (M) convex hull
+ (M) concave polygon
+Functional Structure: 1D
+ (M) Prison Transport
+ (M) substring searching
+ (M) john and fences
+ (M) range minimum
+ (M) tree manager
+Memoization and DP: 3D
+ (M) Dice Path
+ (M) Sherlock and Maze
+Persistent Structure: 3D
+Ad Hoc: 1D
+Parsers: 1D
+
+263
+== AI == 10 Easy, 31 Moderate
+Bot building: 2D
+ (M) Maze Escape
+A* search: 2D
+ (E) Pacman DFS
+ (M) Pacman BFS
+ (M) Pacman A*
+Alpha Beta : 4D
+Combinatorial Search: 1D
+ (E) Tron
+ (E) Lies Unknown
+ (M) Majority
+ (M) Plurality
+ (M) Color Unknown
+ (M) Lies
+Games: 2D
+ (M) Bidding Game
+ (E) Lights Out
+Statistics and ML: 5D
+ (E) Polynomial Regression
+ (M) Correlation & Regression
+ (E) Stock Prediction
+ (M) Markov's Snake and Ladder
+ (M) Document Classification
+ (M) Best Aptitude Test
+ (M) Stack Exchange Question
+ (M) Predict Web Traffic
+ (M) Forecasting Passenger
+Image Analysis: 4D
+ (M) Digital Camera Autodetect
+ (M) The Captcha Cracker
+Natural Language: 6D
+ (E) Para - Senten
+ (E) Trigram
+ (M) Perplexity
+ (E) Cross-Entrophy
+ (M) POS tagging
+ (M) Torn wiki
+ (M) Text Processing warm-up
+ (M) correct apple
+ (M) spell checker
+ (M) T9 predcition
+ (M) acronym
+ (M) seqrch query
+ (M) Disambuigation
+ (E) Hashtag segmentation
+ (M) Language Detection
+Probability and Statistics: 2D
+ (M) Correlation
+ (M) Poisson #1,#2
+ (M) Central Limit #4,5,6
+
+3077
+== Data Structure == 4 Easy, 9 Moderate
+Array        : 2
+Trees        : 1M
+B Tree       : 1M, 2D
+Stack        : 2M, 4D
+Queue        : 1, 1M, 3D
+Heap         : 1, 2D
+Disjoint Set : 1M, 2D
+Trie         : 1M, 1D
+Advanced     : 3M, 15D
+
+1636
+== MATH == 8 Easy, 75 Moderate
+Fundamentals: 7M, 2D
+ (E) Possible Path
+Number Theory: 21M, 24D
+ (E) Fibonacci
+ (E) Cheese
+ (E) John and GCD
+Combinatorics: 22M, 12D
+Algebra: 12M, 7D
+ (E) Wet Shark and 42
+ (E) Difference and Product
+ (E) Simple ONe
+Geometry: 5M, 6D
+ (E) Shirlock Planes
+Probability: 6M, 9D
+Linear Algebra: 3M, 8D
+
