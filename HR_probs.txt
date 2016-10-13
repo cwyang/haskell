@@ -156,20 +156,19 @@ Trie         : 1M, 1D
 Advanced     : 3M, 15D
 
 1636
-== MATH == 8 Easy, 75 Moderate
+== MATH == 7 Easy, 74 Moderate
 Fundamentals: 7M, 2D
  (E) Possible Path
 Number Theory: 21M, 24D
  (E) Fibonacci
  (E) Cheese
- (E) John and GCD
 Combinatorics: 22M, 12D
-Algebra: 12M, 7D
+Algebra: 11M, 7D
  (E) Wet Shark and 42
  (E) Difference and Product
  (E) Simple ONe
 Geometry: 5M, 6D
- (E) Shirlock Planes
+ (E) Sherlock Planes
 Probability: 6M, 9D
 Linear Algebra: 3M, 8D
 
