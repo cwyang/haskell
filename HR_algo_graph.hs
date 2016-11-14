@@ -1076,6 +1076,7 @@ g2 = [
 test3 x y = treeDfs (flip primMST x $ traceShowId $ graphFromEdges (0,4) g2) x y
 -}
 -- Matrix
+{-
 import Data.Array
 import qualified Data.ByteString.Char8 as B
 import qualified Data.Set as S
@@ -1147,3 +1148,57 @@ g2 = [
   (3,0,6),
   (0,4,6)]
 test = dfs (graphFromEdges (0,4) g2) (S.fromList [1,4]) 1
+-}
+-- Jeanine's Route
+
+-- | go returns (1) 0 if no targets reached
+-- |            (2) sum of the weight of the edges to reach target
+import Data.Array
+import qualified Data.ByteString.Char8 as B
+import qualified Data.Set as S
+import Control.Monad
+import Data.Maybe
+import Control.Applicative
+import Debug.Trace
+import Data.Semigroup
+import Data.List (foldl')
+
+type Vertex  = Int
+type Graph a = Array Vertex [(Vertex, a)]
+type Edge a  = (Vertex, Vertex, a)
+type EdgeList a = [(a, (Vertex, Vertex))]
+type MyState = S.Set Vertex
+
+graphFromEdges :: (Int, Int) -> [Edge a] -> Graph a
+graphFromEdges bounds edges = accumArray (flip (:)) [] bounds edges'
+  where edges' = concatMap (\(a,b,w) -> [(a, (b,w)), (b,(a,w))]) edges
+
+dfs :: Graph Int -> [Vertex] -> Vertex -> Int
+dfs graph t start = fst $ go (-1) (0, (S.empty)) (start,0)
+  where targets = S.fromList t
+        go :: Vertex -> (Vertex,Int) -> Int
+        go parent (v,w) 
+          | traceShow (acc, remain, (v,w)) False = undefined
+          | 
+        -- | this node
+          | remain' == S.empty = (acc + w, remain') -- not backtrack. bucks stop here
+          | null children      = (acc, remain')     -- backtrack with
+        -- | children
+          | remain'' == S.empty = (acc + w + childAcc, remain'') -- bucks stop here
+          | otherwise        = (acc + (2*w) + childAcc, remain'')
+          where remain' = S.delete v remain
+                children = [ (v,w) | (v,w) <- graph!v, v /= parent ]
+                (childAcc, remain'')
+                  = foldl' (go v) children
+
+graph = [
+  (1,2,2),
+  (2,4,2),
+  (2,3,2),
+  (3,5,3)]
+g2 = [
+  (1,2,1),
+  (2,3,10)]
+test = dfs (graphFromEdges (1,5) graph) [1,3,4] 1
+t2 = dfs (graphFromEdges (1,3) g2) [1,3] 2
+

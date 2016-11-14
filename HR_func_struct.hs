@@ -127,6 +127,7 @@ main = do
         readLnInts = liftM (map (read :: String -> Int) . words) getLine
 -}                                                                                                                                                                                                                                      
 -- jirkamarsik's solution
+{-
 import Control.Applicative
 import Control.Monad
 import Data.Graph.Inductive.Graph
@@ -144,3 +145,99 @@ main = do n <- readLn
           return (from, to)
           print $ solve $ mkUGraph [1..n] edges
                                                                                             
+-}
+--Range Minimum Query
+{-
+import Control.Applicative
+import Control.Monad
+import Control.Monad.ST
+import Data.Array
+import Data.Array.ST
+import qualified Data.ByteString.Char8 as B
+import Data.Maybe
+import Debug.Trace
+data SegmentTree s a = SegmentTree { size :: Int
+                                   , op :: a->a->a
+                                   , seg  :: STArray s Int (Maybe a)
+                                   }
+left, right:: Int -> Int
+left x = x*2
+right x = x*2+1
+half :: Int -> Int -> Int
+half a b = (a+b) `div` 2
+newSegmentTree :: Int -> [a] -> (a->a->a) -> ST s (SegmentTree s a)
+newSegmentTree n xs op = do
+  SegmentTree n' op <$> newListArray (0,2*n'-1) (replicate n' Nothing ++ map Just xs ++ repeat Nothing)
+  where n' = 2 ^ (ceiling (logBase 2 (fromIntegral n)))
+buildSegmentTree :: (Show a, Ord a) => Int -> [a] -> (a->a->a) -> ST s (SegmentTree s a)
+buildSegmentTree n xs func = do
+  st <- newSegmentTree n xs func
+  build' st 1 0 (size st)
+  return st
+  where build' :: (Ord a) => SegmentTree s a -> Int -> Int -> Int -> ST s ()
+        build' st p l r
+          | l == r-1 = return ()
+          | otherwise = do
+              build' st (left p)  l (half l r)
+              build' st (right p) (half l r) r
+              v1 <- readArray (seg st) (left p)
+              v2 <- readArray (seg st) (right p)
+              let nv = case (v1,v2) of
+                    (Nothing,_) -> v2
+                    (_,Nothing) -> v1
+                    otherwise   -> liftA2 (op st) v1 v2
+              writeArray (seg st) p nv
+--querySegmentTree :: (SegmentTree s a) -> Int -> Int -> ST s (Maybe a)
+querySegmentTree st i j = go st 1 0 (size st) i j
+  where go :: (Ord a) => SegmentTree s a -> Int -> Int -> Int -> Int -> Int -> ST s (Maybe a)
+        go st p l r i j
+--          | traceShow (p,l,r,i,j) False = undefined
+          | i >= r || j <= l = return Nothing
+          | l == i && r == j = readArray (seg st) p
+          | m < i            = go st (right p) m r i j
+          | j <= m           = go st (left p)  l m i j
+          | otherwise = do
+              v1 <- go st (left p) l m i m
+              v2 <- go st (right p) m r m j
+              case (v1,v2) of
+                (Nothing,_) -> return v2
+                (_,Nothing) -> return v1
+                otherwise   -> return $ liftA2 (op st) v1 v2
+                where m = half l r
+main :: IO ()
+main = do
+  [n,m] <- rl
+  a <- rl
+  queries <- replicateM m $ do
+    [l,r] <- rl
+    return (l,r+1)
+  let res = fromJust . sequence $ runST $ do
+        st <- buildSegmentTree n a min
+        a <- getAssocs (seg st)
+--        traceShowM (a, size st)
+--        a <- (freeze $ seg st) :: ST s (Array Int (Maybe Int))
+        mapM (\(x,y) -> querySegmentTree st x y) queries
+  putStrLn . init . unlines . map show $ res 
+  where rl = map readInt . B.words <$> B.getLine
+        readInt = fst . fromJust . B.readInt
+-}
+-- John and Fence
+import qualified Data.ByteString.Char8 as B
+import Data.List
+import Data.Maybe
+solve :: [Int] -> Int
+solve = maximum . map solve' . tails
+solve' :: [Int] -> Int
+solve' = fst . foldl' go (0, (0,maxBound))
+  where go (acc, (n, minv)) x = (max acc' acc, (n', minv'))
+          where n'    = n + 1
+                minv' = min minv x
+                acc'  = n' * minv' 
+  
+main :: IO ()
+main = do
+  [n] <- rl
+  a <- rl
+  print $ solve a
+  where rl = map readInt . B.words <$> B.getLine
+        readInt = fst . fromJust . B.readInt

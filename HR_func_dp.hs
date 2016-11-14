@@ -93,6 +93,7 @@ foo = BS.words "a aa aaa aaaa aaaaa aaaaaa aaaaaaa aaaaaaaa aaaaaaaaa aaaaaaaaaa
 foo' = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab"
 -}
 -- Different Ways
+{-
 choose :: Int -> Int -> Integer
 choose n 0 = 1
 choose 0 k = 0
@@ -106,3 +107,43 @@ main = do
             putStrLn . show . calc $ l)
     [1..n]
   where rl = fmap (map (read :: String->Int) . words) getLine
+-}
+-- Dice Path
+import Control.Monad
+import Debug.Trace
+import Data.List.Split
+data Dice = Dice { top :: Int
+                 , front :: Int
+                 , right :: Int } deriving Show
+
+rightRoll, downRoll :: Dice -> Dice
+rightRoll d = Dice (7-right d) (front d) (top d)
+downRoll d  = Dice (7-front d) (top d) (right d)
+
+--solve :: Int -> Int -> Int
+solve m n = go m n -- fst $ go m n
+  where go :: Int -> Int -> (Int, [Dice])
+        go 1 1 = (1, [Dice 1 2 4])
+        go 1 n = let (lv, [ld]) = go 1 (n-1)
+                     d        = [rightRoll ld]
+                 in (lv + top d, d)
+        go m 1 = let (uv, [ud]) = go (m - 1) 1
+                     d        = [downRoll ud]
+                 in (uv + top d, d)
+        go m n = let (uv, uds) = go (m - 1) n
+                     (lv, lds) = go m (n-1)
+                     lds'      = map rightRoll lds
+                     uds'      = map downRoll uds
+                 in case compare uv lv of
+                      LT -> (lv+top d, [ld'])
+                      RT -> (uv+top d, [ud'])
+                      EQ -> (lv+top d, [ld', ud']
+foo m n = putStrLn . unlines . map (unwords . map show) $ chunksOf n [solve y x | y <- [1..m], x <- [1..n]]
+
+main = do
+  [t] <- rl
+  qs <- replicateM t $ rl >>= (return .tuple)
+  mapM_ (putStrLn . show . uncurry solve) qs
+  where rl = fmap (map (read :: String->Int) . words) getLine
+        tuple [a,b] = (a,b)
+            
